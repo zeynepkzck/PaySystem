@@ -30,7 +30,7 @@ CREATE TABLE Bireysel_Kullanici (
 
 --Isveren tablosu
 CREATE TABLE Isveren (
-	Kullanici_ID INT PRIMARY KEY,
+    Kullanici_ID INT PRIMARY KEY,
     Sirket_Adi VARCHAR(100) NOT NULL,
     Sektor VARCHAR(50),
     Web_Sitesi VARCHAR(100),
@@ -94,9 +94,47 @@ CREATE TABLE Fatura (
     Fatura_No VARCHAR(50) UNIQUE NOT NULL,
     Kesim_Tarihi DATE DEFAULT CURRENT_DATE,
     Vergi_No VARCHAR(20),
-    FOREIGN KEY (Odeme_ID) REFERENCES Odeme(Odeme_ID) ON DELETE CASCADE
+	FOREIGN KEY (Odeme_ID) REFERENCES Odeme(Odeme_ID) ON DELETE CASCADE
 );
 
+CREATE TABLE CV (
+	CV_ID SERIAL PRIMARY KEY,
+	Kullanici_ID INT NOT NULL,
+	Baslik VARCHAR(100),
+	Olusturma_Tarihi DATE DEFAUKT CURRENT_DATE,
+	FOREIGN KEY (Kullanici_ID) REFERENCES Bireysel_Kullanici(Kullanici_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Beceri (
+	Beceri_ID SERIAL PRIMARY KEY,
+	CV_ID INT NOT NULL,
+	Beceri_ID VARCHAR(50),
+	Seviye VARCHAR(20),
+	FOREIGN KEY (CV_ID) REFERENCES CV(CV_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Referans(
+	Referans_ID SERIAL PRIMARY KEY,
+	CV-ID INT NOT NULL,
+	Ad_Soyad VARCHAR(100),
+	Iletisim_Bilgisi VARCHAR(100),
+	FOREIGN KEY (CV_ID) REFERENCES CV(CV_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Proje_Ilani(
+	Proje_ID SERIAL PRIMARY KEY,
+	Isveren_ID INT NOT NULL,
+	Butce DECIMAL(12,2),
+	Teslim_Suresi VARCHAR(50),
+	FOREIGN KEY (Isveren_ID) REFERENCES Isveren(Kullanici_ID) ON DELETE CASCADE
+);
+
+CREATE TABLE Kampanya_Kupon(
+	Kupon_ID SERIAL PRIMARY KEY,
+	Kupon_Kodu VARCHAR(20) UNIQUE,
+	Indirim_Orani DECIMAL(5,2),
+	Gecerlilik_Suresi DATE
+);
 -- 10 TANE VERİ GİRİŞİ (Abonelik Planları için 10'a tamamladım)
 INSERT INTO Abonelik_Plani (Plan_Adi, Fiyat, Sure_Gun) VALUES
 ('Basic', 0.00, 30),
