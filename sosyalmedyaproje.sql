@@ -1,5 +1,4 @@
-
-DROP TABLE IF EXISTS Fatura, Odeme, Kredi_Karti, Havale_EFT, Odeme_Yontemi, Abonelik, Bireysel_Kullanici, Isveren, Abonelik_Plani, Kullanici CASCADE;
+DROP TABLE IF EXISTS Fatura, Odeme, Kredi_Karti, Havale_EFT, Odeme_Yontemi, Basvuru, Is_Ilani, Referans, Beceri, CV, Abonelik, Bireysel_Kullanici, Isveren, Abonelik_Plani, Kullanici, Kampanya_Kupon CASCADE;
 
 --Kullanici ana tablosu (supertype)
 CREATE TABLE Kullanici (
@@ -94,85 +93,119 @@ CREATE TABLE Fatura (
     Fatura_No VARCHAR(50) UNIQUE NOT NULL,
     Kesim_Tarihi DATE DEFAULT CURRENT_DATE,
     Vergi_No VARCHAR(20),
-	FOREIGN KEY (Odeme_ID) REFERENCES Odeme(Odeme_ID) ON DELETE CASCADE
+    FOREIGN KEY (Odeme_ID) REFERENCES Odeme(Odeme_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE CV (
-	CV_ID SERIAL PRIMARY KEY,
-	Kullanici_ID INT NOT NULL,
-	Baslik VARCHAR(100),
-	Olusturma_Tarihi DATE DEFAUKT CURRENT_DATE,
-	FOREIGN KEY (Kullanici_ID) REFERENCES Bireysel_Kullanici(Kullanici_ID) ON DELETE CASCADE
+    CV_ID SERIAL PRIMARY KEY,
+    Kullanici_ID INT NOT NULL,
+    Baslik VARCHAR(100),
+    Olusturma_Tarihi DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (Kullanici_ID) REFERENCES Bireysel_Kullanici(Kullanici_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE Beceri (
-	Beceri_ID SERIAL PRIMARY KEY,
-	CV_ID INT NOT NULL,
-	Beceri_ID VARCHAR(50),
-	Seviye VARCHAR(20),
-	FOREIGN KEY (CV_ID) REFERENCES CV(CV_ID) ON DELETE CASCADE
+    Beceri_ID SERIAL PRIMARY KEY,
+    CV_ID INT NOT NULL,
+    Beceri_Adi VARCHAR(50), 
+    Seviye VARCHAR(20),
+    FOREIGN KEY (CV_ID) REFERENCES CV(CV_ID) ON DELETE CASCADE
 );
 
 CREATE TABLE Referans(
-	Referans_ID SERIAL PRIMARY KEY,
-	CV-ID INT NOT NULL,
-	Ad_Soyad VARCHAR(100),
-	Iletisim_Bilgisi VARCHAR(100),
-	FOREIGN KEY (CV_ID) REFERENCES CV(CV_ID) ON DELETE CASCADE
+    Referans_ID SERIAL PRIMARY KEY,
+    CV_ID INT NOT NULL,
+    Ad_Soyad VARCHAR(100),
+    Iletisim_Bilgisi VARCHAR(100),
+    FOREIGN KEY (CV_ID) REFERENCES CV(CV_ID) ON DELETE CASCADE
 );
 
-CREATE TABLE Proje_Ilani(
-	Proje_ID SERIAL PRIMARY KEY,
-	Isveren_ID INT NOT NULL,
-	Butce DECIMAL(12,2),
-	Teslim_Suresi VARCHAR(50),
-	FOREIGN KEY (Isveren_ID) REFERENCES Isveren(Kullanici_ID) ON DELETE CASCADE
+
+CREATE TABLE Is_Ilani (
+    Ilan_ID SERIAL PRIMARY KEY,
+    Isveren_ID INT NOT NULL,
+    Baslik VARCHAR(100),
+    Yayin_Tarihi DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (Isveren_ID) REFERENCES Isveren(Kullanici_ID) ON DELETE CASCADE
 );
 
-CREATE TABLE Kampanya_Kupon(
-	Kupon_ID SERIAL PRIMARY KEY,
-	Kupon_Kodu VARCHAR(20) UNIQUE,
-	Indirim_Orani DECIMAL(5,2),
-	Gecerlilik_Suresi DATE
+CREATE TABLE Basvuru (
+    Basvuru_ID SERIAL PRIMARY KEY,
+    Ilan_ID INT NOT NULL,
+    Kullanici_ID INT NOT NULL,
+    Basvuru_Tarihi TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (Ilan_ID) REFERENCES Is_Ilani(Ilan_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Kullanici_ID) REFERENCES Bireysel_Kullanici(Kullanici_ID) ON DELETE CASCADE
 );
--- 10 TANE VERİ GİRİŞİ (Abonelik Planları için 10'a tamamladım)
+
+-- 10 TANE VERİ GİRİŞİ
 INSERT INTO Abonelik_Plani (Plan_Adi, Fiyat, Sure_Gun) VALUES
-('Basic', 0.00, 30),
-('Premium Deneme', 0.00, 30),
-('Öğrenci Premium', 69.99, 30),
-('Öğrenci Premium Yıllık', 600, 365),
-('Premium', 199.0, 30),
-('Premium Yıllık', 2000, 365),
-('Öğrenci Premium Deneme', 0.00, 30),
-('Kurumsal', 999.98, 30),
-('Kurumsal Silver', 1500.00, 30),
+('Basic', 0.00, 30), ('Premium Deneme', 0.00, 30), ('Öğrenci Premium', 69.99, 30),
+('Öğrenci Premium Yıllık', 600, 365), ('Premium', 199.0, 30), ('Premium Yıllık', 2000, 365),
+('Öğrenci Premium Deneme', 0.00, 30), ('Kurumsal', 999.98, 30), ('Kurumsal Silver', 1500.00, 30),
 ('Kurumsal Gold', 5000.00, 365);
 
--- Kullanicilar (ID çakışmasını önlemek için seri devam etmeli)
 INSERT INTO Kullanici (Kullanici_ID, EPosta, Sifre, Kullanici_Tipi) VALUES
-(1, 'derdinekeder@bing.com', 'ismailpro123', 'Bireysel'),
-(2, 'aysekosan@mailim.com', 'sifresifresifre', 'Bireysel'),
-(3, 'asaletinyeter@meyil.com', 'fetih1453', 'Bireysel'),
-(4, 'cokonemlisirket@sirketim.com', 'ruhi123', 'Isveren'),
-(5, 'teknolojiltdsti@yandex.com', '123sifre', 'Isveren'),
-(6, 'yilmazelektrik@hotmail.com', 'yilmazyilmaz', 'Bireysel'),
-(7, 'tech@goggle.com', 'admin44', 'Isveren'),
-(8, 'akasyadoner@donerci.com', 'tavukdoner', 'Isveren'),
-(9, 'iksirket@sirket.com', '1837837', 'Isveren'),
-(10, '85calisanadam@maik.com', 'sifrem878', 'Bireysel');
+(1, 'k1@m.com', '123', 'Bireysel'), (2, 'k2@m.com', '123', 'Bireysel'), (3, 'k3@m.com', '123', 'Bireysel'),
+(4, 's1@s.com', '123', 'Isveren'), (5, 's2@s.com', '123', 'Isveren'), (6, 'k4@m.com', '123', 'Bireysel'),
+(7, 's3@s.com', '123', 'Isveren'), (8, 's4@s.com', '123', 'Isveren'), (9, 's5@s.com', '123', 'Isveren'),
+(10, 'k5@m.com', '123', 'Bireysel');
 
--- Bireysel Kullanici Detayları
-INSERT INTO Bireysel_Kullanici (Kullanici_ID, Ad, Soyad, Dogum_Tarihi, Cinsiyet) VALUES
-(1, 'Kadir', 'Gümüş', '1992-05-03','Erkek'),
-(2, 'Ayşe', 'Koşan', '1979-08-17','Kadın'),
-(3, 'Turgut', 'Bayrakçı', '1985-01-01','Erkek'),
-(6, 'Ahmet Emir', 'Yılmaz', '2000-11-30','Erkek'),
-(10, 'Nuray', 'Nurlu', '1991-02-22','Kadın');
+INSERT INTO Bireysel_Kullanici (Kullanici_ID, Ad, Soyad) VALUES
+(1, 'Kadir', 'Gümüş'), (2, 'Ayşe', 'Koşan'), (3, 'Turgut', 'Bayrakçı'), (6, 'Ahmet', 'Yılmaz'), (10, 'Nuray', 'Nurlu');
 
--- İşveren Detayları
-INSERT INTO Isveren (Kullanici_ID, Sirket_Adi, Sektor, Web_Sitesi, Sirket_Adresi) VALUES
-(4, 'Büyük Şirket', 'Pazarlama', 'www.buyuksirket.com','Istanbul/Kadıköy'),
-(5, 'Teknoloji Adası', 'Yazılım', 'www.teknoada.com','Ankara/Mamak'),
-(7, 'Goggle', 'Yazılım', 'www.goggle.com','Manisa/Yunusemre'),
-(8, 'Akasya Döner', 'Döner', 'yok','İzmir/Menemen'),
-(9, 'Kariyer AŞ', 'İnsan Kaynakları', 'www.kariyeryap.com', 'Erzurum/Merkez');
+INSERT INTO Isveren (Kullanici_ID, Sirket_Adi, Sektor) VALUES
+(4, 'Büyük Şirket', 'Pazarlama'), (5, 'Teknoloji Adası', 'Yazılım'), (7, 'Goggle', 'Yazılım'), (8, 'Akasya Döner', 'Gıda'), (9, 'Kariyer AŞ', 'İK');
+
+--triggerlar
+
+--1. otomatik fatura triggerı
+CREATE OR REPLACE FUNCTION fn_fatura_olustur()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.Durum= 'Başarılı' THEN
+        INSERT INTO Fatura (Odeme_ID, Fatura_No, Kesim_Tarihi)
+        VALUES (NEW.Odeme_ID, 'FAT-' || NEW.Odeme_ID || TO_CHAR(NOW(), 'YYYYMMDD'), CURRENT_DATE);
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_odeme_sonrasi_fatura
+AFTER INSERT ON Odeme
+FOR EACH ROW EXECUTE FUNCTION fn_fatura_olustur();
+
+--2. Başvuru kontrol triggerı 
+CREATE OR REPLACE FUNCTION fn_basvuru_kontrol()
+RETURNS TRIGGER AS $$
+DECLARE
+    u_tip VARCHAR;
+BEGIN
+    SELECT Kullanici_Tipi INTO u_tip FROM Kullanici WHERE Kullanici_ID = NEW.Kullanici_ID;
+    IF u_tip = 'Isveren' THEN 
+        RAISE EXCEPTION 'İşverenler iş ilanlarına başvuramaz!!!';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_basvuru_tip_kontrol
+BEFORE INSERT ON Basvuru
+FOR EACH ROW EXECUTE FUNCTION fn_basvuru_kontrol();
+
+--3. abonelik durum triggerı
+CREATE OR REPLACE FUNCTION fn_abonelik_log()
+RETURNS TRIGGER AS $$
+BEGIN
+     RAISE NOTICE 'Kullanici % için yeni bir abonelik başlatıldı.', NEW.Kullanici_ID;
+     RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_abonelik_takip
+AFTER INSERT ON Abonelik
+FOR EACH ROW EXECUTE FUNCTION fn_abonelik_log();
+
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema= 'public';
